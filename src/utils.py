@@ -12,7 +12,7 @@ def get_companies(employer_ids: list[str]):
         vacancy_response = requests.get(employer_data["vacancies_url"])
         vacancy_data = vacancy_response.json()
         data.append({
-            'company': employer_data,
+            'employer': employer_data,
             'vacancies': vacancy_data['items']
         })
 
@@ -37,9 +37,9 @@ def create_database(database_name: str, params: dict):
         cur.execute("""
             CREATE TABLE employers (
                 employer_id INTEGER PRIMARY KEY,
-                company_name VARCHAR(100) NOT NULL,
+                employer VARCHAR(100) NOT NULL,
                 open_vacancies INTEGER,
-                url_vacancies TEXT
+                vacancies_url TEXT
             )
         """)
 
@@ -48,10 +48,10 @@ def create_database(database_name: str, params: dict):
             CREATE TABLE vacancies (
                 vacancy_id SERIAL PRIMARY KEY,
                 employer_id INT REFERENCES employers(employer_id),
-                company_name VARCHAR(100) NOT NULL,
+                employer VARCHAR(100) NOT NULL,
                 vacancy VARCHAR(255) NOT NULL,
                 salary_min INTEGER,
-                url_vacancy TEXT
+                vacancy_url TEXT
             )
         """)
 
@@ -60,4 +60,44 @@ def create_database(database_name: str, params: dict):
 
 def save_data_to_database(data: list[dict], database_name: str, params: dict):
     """Сохранение данных о компаниях и вакансиях в базу данных"""
+
+    conn = psycopg2.connect(dbname=database_name, **params)
+
+    with conn.cursor() as cur:
+        for company in data:
+            cur.execute(
+                """
+                INSERT INTO employers (employer_id, employer, open_vacancies, vacancies_url)
+                VALUES (%s, %s, %s, %s)
+                RETURNING employer_id
+                """,
+                (company['employer']['id'],
+                 company['employer']['name'],
+                 company['employer']['open_vacancies'],
+                 company['employer']['vacancies_url'])
+            )
+            employer_id = cur.fetchone()
+            for vacancy in company['vacancies']:
+                if vacancy['salary'] is not None:
+                    vacancy['salary'] = 0 if vacancy['salary']['from'] is None else vacancy[
+                        'salary']['from']
+                else:
+                    vacancy['salary'] = 0
+                cur.execute(
+                        """
+                        INSERT INTO vacancies (employer_id, employer, vacancy, salary_min,vacancy_url)
+                        VALUES (%s, %s, %s, %s, %s)
+                        """,
+                        (employer_id,
+                         vacancy['employer']['name'],
+                         vacancy['name'],
+                         vacancy['salary'],
+                         vacancy['alternate_url'])
+                    )
+
+    conn.commit()
+    conn.close()
+
+
+
 
