@@ -25,7 +25,7 @@
 poetry install
 
 ## Для корректной работы БД и подключения необходимо создать и заполнить своими данными файл "database.ini":
-[postgresql] #секция 
+[postgresql] #секция
 host=localhost #ваш хост для подключения
 user=postgres #ваше имя пользователя
 password=password #ваш пароль
