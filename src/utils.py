@@ -18,6 +18,7 @@ def get_companies(employer_ids: list[str]):
 
     return data
 
+
 def create_database(database_name: str, params: dict):
     """Создание базы данных и таблиц для сохранения данных о компаниях и вакансиях"""
 
@@ -58,6 +59,7 @@ def create_database(database_name: str, params: dict):
     conn.commit()
     conn.close()
 
+
 def save_data_to_database(data: list[dict], database_name: str, params: dict):
     """Сохранение данных о компаниях и вакансиях в базу данных"""
 
@@ -97,7 +99,3 @@ def save_data_to_database(data: list[dict], database_name: str, params: dict):
 
     conn.commit()
     conn.close()
-
-
-
-

@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "Coursework_SQL"
+version = "0.1.0"
+description = "Creating and managing tables with vacancies from HeadHunter"
+authors = ["Natalia Zueva <zueva_natalia@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+psycopg2 = "2.9.9"
+requests = "2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
